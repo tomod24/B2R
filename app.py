@@ -1,4 +1,3 @@
-"""add new applications to the import os code"""
 import os
 from flask import (
     Flask, flash, render_template,

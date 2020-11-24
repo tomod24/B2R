@@ -17,6 +17,7 @@ def mongo_connect(url):
     except pymongo.errors.ConnectionFailure as e:
         print("Could not connect to MongoDB: %s") % e
 
+
 def show_menu():
     print("")
     print("1. Add a record")
@@ -25,21 +26,113 @@ def show_menu():
     print("4. Delete a record")
     print("5. Exit")
 
-    option = input("Enter Option: ")
+    option = input("Enter option: ")
     return option
+
+
+def get_record():
+    print("")
+    title = input("Enter Book Title  > ")
+    author = input("Enter Author Name  > ")
+
+    try:
+        doc = coll.find_one({"title": title.lower(), "author": author.lower()})
+    except:
+        print("Error accessing the database")
+
+    if not doc:
+        print("")
+        print("Error! No results found.")
+
+    return doc
+
+
+def add_record():
+    print("")
+    title = input("Enter Book Title > ")
+    author = input("Enter Author Name > ")
+    genre = input("Enter Genre > ")
+    year = input("Enter Year Published > ")
+    description = input("Enter Description > ")
+
+    new_doc = {
+        "title": title.lower(),
+        "author": author.lower(),
+        "genre": genre,
+        "year": year,
+        "description": description
+    }
+
+    try:
+        coll.insert(new_doc)
+        print("")
+        print("Document inserted")
+    except:
+        print("Error accessing the database")
+
+
+def find_record():
+    doc = get_record()
+    if doc:
+        print("")
+        for k, v in doc.items():
+            if k != "_id":
+                print(k.capitalize() + ": " + v.capitalize())
+
+
+def edit_record():
+    doc = get_record()
+    if doc:
+        update_doc = {}
+        print("")
+        for k, v in doc.items():
+            if k != "_id":
+                update_doc[k] = input(k.capitalize() + " [" + v + "] > ")
+
+                if update_doc[k] == "":
+                    update_doc[k] = v
+
+        try:
+            coll.update_one(doc, {"$set": update_doc})
+            print("")
+            print("Document updated")
+        except:
+            print("Error accessing the database")
+
+
+def delete_record():
+    doc = get_record()
+    if doc:
+        print("")
+        for k, v in doc.items():
+            if k != "_id":
+                print(k.capitalize() + ": " + v.capitalize())
+
+        print("")
+        confirmation = input("Is this the document you want to delete?\nY or N > ")
+        print("")
+
+        if confirmation.lower() == "y":
+            try:
+                coll.remove(doc)
+                print("Document deleted!")
+            except:
+                print("Error accessing the database")
+        else:
+            print("Document not deleted")
 
 
 def main_loop():
     while True:
         option = show_menu()
         if option == "1":
-            print("you have selected option 1")
+            add_record()
         elif option == "2":
-            print("you have selected option 1")
+            find_record()
         elif option == "3":
-            print("you have selected option 1")
+            edit_record()
         elif option == "4":
-            print("you have selected option 1")
+            delete_record()
         elif option == "5":
             conn.close()
             break
@@ -47,8 +140,6 @@ def main_loop():
             print("Invalid option")
         print("")
 
-
-"""we use the connection lines provided in mono.py file to run the request. Then call the loop e.g. main_loop"""
 
 conn = mongo_connect(MONGO_URI)
 coll = conn[DATABASE][COLLECTION]

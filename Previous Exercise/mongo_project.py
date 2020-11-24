@@ -5,8 +5,8 @@ import pymongo
 
 
 MONGO_URI = "mongodb+srv://tomod24:Ludacris247@mybookdb.zflml.mongodb.net/books2review?retryWrites=true&w=majority"
-DATABASE = "task_manager"
-COLLECTION = "tasks"
+DATABASE = "books2review"
+COLLECTION = "books"
 
 
 
